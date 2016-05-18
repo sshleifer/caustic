@@ -29,6 +29,7 @@ func postAccomplishment(value string, user string, goal string) {
 	if err != nil {
 		panic(fmt.Sprintf("err in parsing code response: %s", err.Error()))
 	}
+	fmt.Printf("%#v\n", resp)
 }
 
 func main() {
