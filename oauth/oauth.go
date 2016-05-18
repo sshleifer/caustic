@@ -3,6 +3,8 @@ package oauth
 // Oauth's you into coursera
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -35,19 +37,30 @@ func RedirectToCoursera(w http.ResponseWriter, r *http.Request) {
 func RedeemCode(w http.ResponseWriter, r *http.Request) {
 	baseUrl := "https://accounts.coursera.org/oauth2/v1/token"
 
-	v := url.Values{}
-	v.Set("code", getCodeFromUrl(r.URL.String()))
-	v.Set("client_id", clientID)
-	v.Set("client_secret", clientSecret)
-	v.Set("redirect_uri", redirectURI)
-	v.Set("grant_type", "authorization_code")
+	data := url.Values{}
+	data.Set("code", getCodeFromUrl(r.URL.String()))
+	data.Set("client_id", clientID)
+	data.Set("client_secret", clientSecret)
+	data.Set("redirect_uri", redirectURI)
+	data.Set("grant_type", "authorization_code")
 
-	fullURL := (baseUrl + "?" + v.Encode())
-	resp, err := http.Post(fullURL, "blah", nil)
+	resp, err := http.Post(baseUrl, "application/x-www-form-urlencoded", bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		panic(fmt.Sprintf("err in parsing code response: %s", err.Error()))
 	}
 	fmt.Printf("%#v\n", resp.Body)
+
+	body := map[string]interface{}{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		panic(fmt.Sprintf("Could not unmarshal body: %s", err.Error()))
+	}
+	fmt.Printf("%#v\n", body)
+	http.Redirect(w, r, fmt.Sprintf("http://christopherbradshaw.me:5001/with-token?token=%s", body["access_token"]), 301)
+}
+
+func Home(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Hello\n")
+	w.Write([]byte("Hello!"))
 }
 
 func getCodeFromUrl(inUrl string) string {
@@ -66,7 +79,7 @@ func getCodeFromUrl(inUrl string) string {
 		panic(fmt.Sprintf("csrf state yo!: %s", v["state"]))
 	}
 
-	if len(v["code"][0]) != 1 {
+	if len(v["code"]) != 1 {
 		panic(fmt.Sprintf("no code yo!: %s", v["code"]))
 	}
 	return v["code"][0]
