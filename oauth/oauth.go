@@ -11,7 +11,7 @@ import (
 const (
 	clientID     = "cBiYd-vLLx-7_BV8AZ1jGQ"
 	clientSecret = "A5HoPutMFYTXcySPk4c6sw"
-	redirectURI  = "http://christopherbradshaw.me/back-at-you:5001"
+	redirectURI  = "http://christopherbradshaw.me:5001/back-at-you"
 	csrfState    = "yoyoyo"
 )
 
