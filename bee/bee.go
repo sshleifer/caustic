@@ -25,11 +25,10 @@ func postAccomplishment(value string, user string, goal string) {
 	// fmt.Println(time.Now().Format(time.RFC850))
 	fullURL := baseUrl + "?" + v.Encode()
 	fmt.Println(fullURL)
-	resp, err := http.Post(fullURL, "blah", nil)
+	resp, err := http.Post(fullURL, "", nil)
 	if err != nil {
 		panic(fmt.Sprintf("err in parsing code response: %s", err.Error()))
 	}
-	fmt.Printf("%#v\n", resp)
 }
 
 func main() {
